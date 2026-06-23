@@ -5,87 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Inner Light — Encuentra tu propósito</title>
   <meta name="description" content="Sonríe, Dios te ama. Sos lo más bonito de este mundo." />
-
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
-
-  <!-- Three.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-  <!-- GSAP CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
-  <!-- Canvas 3D Background -->
   <canvas id="bg-canvas"></canvas>
 
   <!-- Loader -->
   <div id="loader">
     <div class="loader-inner">
       <div class="loader-ring"></div>
+      <div class="loader-ring2"></div>
       <span class="loader-text">Inner Light</span>
     </div>
   </div>
 
-  <!-- Navigation -->
+  <!-- Music button -->
+  <button id="music-btn" title="Toggle music">
+    <span id="music-icon">🔇</span>
+  </button>
+
+  <!-- Nav -->
   <nav id="navbar">
-    <div class="nav-logo">
-      Inner <span>Light</span>
-    </div>
+    <div class="nav-logo">Inner <span>Light</span></div>
   </nav>
 
-  <!-- Hero / Main Message -->
+  <!-- Hero -->
   <main id="hero">
-    <div class="hero-content">
-
-      <!-- Floating 3D orbs via CSS -->
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-
+    <div class="hero-content" id="heroContent">
       <div class="deco-line top-line"></div>
-
-      <div class="message-wrap">
-        <p class="message-line line-1">
-          <span class="word" data-delay="0">Sonríe,</span>
+      <div class="message-wrap" id="messageWrap">
+        <p class="message-line">
+          <span class="word layer-1" data-delay="0.2">Sonríe,</span>
           <span class="dot-deco"></span>
-          <span class="word gold-word" data-delay="0.15">Dios te ama.</span>
+          <span class="word gold-word layer-2" data-delay="0.5">Dios te ama.</span>
         </p>
-        <p class="message-line line-2">
-          <span class="word" data-delay="0.3">Sos lo más</span>
-          <span class="word gradient-word" data-delay="0.45">bonito</span>
+        <p class="message-line">
+          <span class="word layer-3" data-delay="0.8">Sos lo más</span>
+          <span class="word gradient-word layer-1" data-delay="1.1">bonito</span>
         </p>
-        <p class="message-line line-3">
-          <span class="word" data-delay="0.6">de</span>
-          <span class="word green-word" data-delay="0.75">este mundo.</span>
+        <p class="message-line">
+          <span class="word layer-2" data-delay="1.4">de</span>
+          <span class="word green-word layer-3" data-delay="1.7">este mundo.</span>
         </p>
       </div>
-
-      <div class="sub-tag">Inner Light &nbsp;·&nbsp; Encuentra tu propósito</div>
-
+      <p class="sub-tag">Inner Light &nbsp;·&nbsp; Encuentra tu propósito</p>
       <div class="deco-line bottom-line"></div>
-
     </div>
   </main>
+
+  <!-- Click burst container -->
+  <div id="burst-container"></div>
 
   <!-- Footer -->
   <footer id="footer">
     <p class="coming-soon">Coming Soon</p>
   </footer>
 
-  <!-- Particle overlay (CSS-driven) -->
-  <div class="particles" id="particles"></div>
+  <!-- Audio -->
+  <audio id="bg-music" loop>
+    <source src="https://assets.mixkit.co/music/preview/mixkit-space-ambience-1717.mp3" type="audio/mpeg" />
+  </audio>
 
-  <!-- Scripts -->
-  <script src="js/particles.js"></script>
-  <script src="js/three-bg.js"></script>
+  <script src="js/universe.js"></script>
   <script src="js/animations.js"></script>
 </body>
 </html>
