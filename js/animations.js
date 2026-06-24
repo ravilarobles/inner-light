@@ -4,18 +4,15 @@
 ============================================ */
 (function () {
 
-  /* ---- Loader ---- */
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('navbar').classList.add('visible');
       revealWordsSequence();
       startShootingStars();
-      startMusic();
     }, 1800);
   });
 
-  /* ---- Word by Word Reveal ---- */
   function revealWordsSequence() {
     const sequence = [
       { sel: '.w1', delay: 200,  shimmer: true  },
@@ -35,7 +32,6 @@
     });
   }
 
-  /* ---- 3D Tilt + Parallax ---- */
   const heroContent = document.getElementById('heroContent');
 
   document.addEventListener('mousemove', (e) => {
@@ -44,13 +40,11 @@
     const cy = window.innerHeight / 2;
     const dx = (e.clientX - cx) / cx;
     const dy = (e.clientY - cy) / cy;
-
     heroContent.style.transform = `
       perspective(1400px)
       rotateX(${-dy * 6}deg)
       rotateY(${dx * 6}deg)
     `;
-
     document.querySelectorAll('.word.visible').forEach((w, i) => {
       const depth = (i % 3 + 1) * 5;
       w.style.transform = `translate(${dx * -depth}px, ${dy * -depth}px) translateZ(0)`;
@@ -60,9 +54,7 @@
   document.addEventListener('mouseleave', () => {
     if (!heroContent) return;
     heroContent.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg)';
-    document.querySelectorAll('.word.visible').forEach(w => {
-      w.style.transform = '';
-    });
+    document.querySelectorAll('.word.visible').forEach(w => { w.style.transform = ''; });
   });
 
   document.addEventListener('touchmove', (e) => {
@@ -73,7 +65,6 @@
     heroContent.style.transform = `perspective(1400px) rotateX(${-dy*4}deg) rotateY(${dx*4}deg)`;
   }, { passive:true });
 
-  /* ---- Glow Pulse ---- */
   const goldWord  = document.querySelector('.gold-word');
   const greenWord = document.querySelector('.green-word');
   setInterval(() => {
@@ -84,7 +75,6 @@
       greenWord.style.textShadow = `1px 1px 0 rgba(0,0,0,0.8),2px 2px 0 rgba(0,0,0,0.5),3px 3px 8px rgba(0,0,0,0.3),0 0 ${35+Math.sin(t/900+1)*18}px rgba(82,183,136,0.6),0 0 70px rgba(82,183,136,0.2)`;
   }, 40);
 
-  /* ---- Click Burst ---- */
   const burstContainer = document.getElementById('burst-container');
   const burstColors = ['#52b788','#e8c97e','#9b72cf','#95d5b2','#f0ede6','#c9a84c','#ffffff'];
 
@@ -110,7 +100,6 @@
     }
   });
 
-  /* ---- Shooting Stars ---- */
   function startShootingStars() {
     function shoot() {
       const el = document.createElement('div');
@@ -136,7 +125,7 @@
     setTimeout(shoot, 3000);
   }
 
-  /* ---- Música — autoplay, botón para desactivar ---- */
+  /* ---- Música ---- */
   const music  = document.getElementById('bg-music');
   const btn    = document.getElementById('music-btn');
   const icon   = document.getElementById('music-icon');
@@ -144,25 +133,26 @@
 
   music.volume = 0.3;
 
-  function startMusic() {
-    document.addEventListener('click', function handler() {
+  // Arranca en el primer clic en cualquier parte
+  document.addEventListener('click', () => {
+    if (!playing) {
       music.play().then(() => {
         playing = true;
-        icon.textContent = '🔊';
+        icon.textContent = '🔊 Pausar música';
       }).catch(()=>{});
-      document.removeEventListener('click', handler);
-    });
-  }
+    }
+  }, { once: true });
 
+  // Botón para pausar/reanudar
   btn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (playing) {
       music.pause();
-      icon.textContent = '🔇';
+      icon.textContent = '🎵 Activar música';
       playing = false;
     } else {
       music.play().catch(()=>{});
-      icon.textContent = '🔊';
+      icon.textContent = '🔊 Pausar música';
       playing = true;
     }
   });
