@@ -1,5 +1,6 @@
 /* ============================================
-   INNER LIGHT — Animations, Music, Interactions
+   INNER LIGHT — Animations v3
+   Autoplay música + textos + 3D tilt
 ============================================ */
 (function () {
 
@@ -8,20 +9,33 @@
     setTimeout(() => {
       document.getElementById('loader').classList.add('hidden');
       document.getElementById('navbar').classList.add('visible');
-      revealWords();
+      revealWordsSequence();
       startShootingStars();
+      startMusic();
     }, 1800);
   });
 
-  /* ---- Word Reveal ---- */
-  function revealWords() {
-    document.querySelectorAll('.word').forEach((word) => {
-      const delay = parseFloat(word.dataset.delay || 0) * 1000;
-      setTimeout(() => word.classList.add('visible'), delay);
+  /* ---- Word by Word Reveal ---- */
+  function revealWordsSequence() {
+    const sequence = [
+      { sel: '.w1', delay: 200,  shimmer: true  },
+      { sel: '.w2', delay: 800,  shimmer: true  },
+      { sel: '.w3', delay: 1500, shimmer: false },
+      { sel: '.w4', delay: 2100, shimmer: true  },
+      { sel: '.w5', delay: 2800, shimmer: false },
+      { sel: '.w6', delay: 3100, shimmer: true  },
+    ];
+    sequence.forEach(({ sel, delay, shimmer }) => {
+      setTimeout(() => {
+        const el = document.querySelector(sel);
+        if (!el) return;
+        el.classList.add('visible');
+        if (shimmer) setTimeout(() => el.classList.add('shimmer'), 1000);
+      }, delay);
     });
   }
 
-  /* ---- 3D Tilt on Mouse ---- */
+  /* ---- 3D Tilt + Parallax ---- */
   const heroContent = document.getElementById('heroContent');
 
   document.addEventListener('mousemove', (e) => {
@@ -31,138 +45,126 @@
     const dx = (e.clientX - cx) / cx;
     const dy = (e.clientY - cy) / cy;
 
-    // Parallax layers
-    document.querySelectorAll('.layer-1').forEach(el => {
-      el.style.transform = `translateY(0) translateZ(0px) translate(${dx * -6}px, ${dy * -6}px)`;
-    });
-    document.querySelectorAll('.layer-2').forEach(el => {
-      el.style.transform = `translateY(0) translateZ(20px) translate(${dx * -12}px, ${dy * -10}px)`;
-    });
-    document.querySelectorAll('.layer-3').forEach(el => {
-      el.style.transform = `translateY(0) translateZ(40px) translate(${dx * -18}px, ${dy * -14}px)`;
-    });
-
     heroContent.style.transform = `
-      perspective(1200px)
-      rotateX(${-dy * 5}deg)
-      rotateY(${dx * 5}deg)
+      perspective(1400px)
+      rotateX(${-dy * 6}deg)
+      rotateY(${dx * 6}deg)
     `;
+
+    document.querySelectorAll('.word.visible').forEach((w, i) => {
+      const depth = (i % 3 + 1) * 5;
+      w.style.transform = `translate(${dx * -depth}px, ${dy * -depth}px) translateZ(0)`;
+    });
   });
 
   document.addEventListener('mouseleave', () => {
     if (!heroContent) return;
-    heroContent.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
-    ['layer-1','layer-2','layer-3'].forEach(cls => {
-      document.querySelectorAll('.' + cls).forEach(el => {
-        el.style.transform = '';
-      });
+    heroContent.style.transform = 'perspective(1400px) rotateX(0deg) rotateY(0deg)';
+    document.querySelectorAll('.word.visible').forEach(w => {
+      w.style.transform = '';
     });
   });
 
-  /* ---- Touch tilt ---- */
   document.addEventListener('touchmove', (e) => {
     if (!heroContent) return;
-    const t = e.touches[0];
-    const dx = (t.clientX / window.innerWidth  - 0.5) * 2;
-    const dy = (t.clientY / window.innerHeight - 0.5) * 2;
-    heroContent.style.transform = `perspective(1200px) rotateX(${-dy*4}deg) rotateY(${dx*4}deg)`;
-  }, { passive: true });
+    const t  = e.touches[0];
+    const dx = (t.clientX/window.innerWidth  - 0.5)*2;
+    const dy = (t.clientY/window.innerHeight - 0.5)*2;
+    heroContent.style.transform = `perspective(1400px) rotateX(${-dy*4}deg) rotateY(${dx*4}deg)`;
+  }, { passive:true });
 
-  /* ---- Glow pulse ---- */
+  /* ---- Glow Pulse ---- */
   const goldWord  = document.querySelector('.gold-word');
   const greenWord = document.querySelector('.green-word');
-
   setInterval(() => {
     const t = Date.now();
     if (goldWord)
-      goldWord.style.textShadow = `0 0 ${40 + Math.sin(t/700)*20}px rgba(232,201,126,0.5), 0 0 80px rgba(232,201,126,0.2)`;
+      goldWord.style.textShadow = `1px 1px 0 rgba(0,0,0,0.8),2px 2px 0 rgba(0,0,0,0.5),3px 3px 8px rgba(0,0,0,0.3),0 0 ${40+Math.sin(t/700)*20}px rgba(232,201,126,0.6),0 0 80px rgba(232,201,126,0.2)`;
     if (greenWord)
-      greenWord.style.textShadow = `0 0 ${30 + Math.sin(t/900+1)*15}px rgba(82,183,136,0.5), 0 0 60px rgba(82,183,136,0.2)`;
+      greenWord.style.textShadow = `1px 1px 0 rgba(0,0,0,0.8),2px 2px 0 rgba(0,0,0,0.5),3px 3px 8px rgba(0,0,0,0.3),0 0 ${35+Math.sin(t/900+1)*18}px rgba(82,183,136,0.6),0 0 70px rgba(82,183,136,0.2)`;
   }, 40);
 
-  /* ---- Click Constellation Burst ---- */
+  /* ---- Click Burst ---- */
   const burstContainer = document.getElementById('burst-container');
-  const burstColors = ['#52b788','#e8c97e','#9b72cf','#95d5b2','#f0ede6','#c9a84c'];
+  const burstColors = ['#52b788','#e8c97e','#9b72cf','#95d5b2','#f0ede6','#c9a84c','#ffffff'];
 
   document.addEventListener('click', (e) => {
-    for (let i = 0; i < 14; i++) {
-      const star = document.createElement('div');
+    for (let i = 0; i < 16; i++) {
+      const star  = document.createElement('div');
       star.className = 'burst-star';
-      const size  = Math.random() * 5 + 2;
-      const angle = (i / 14) * Math.PI * 2 + Math.random() * 0.5;
-      const dist  = 40 + Math.random() * 80;
-      const color = burstColors[Math.floor(Math.random() * burstColors.length)];
-
+      const size  = Math.random()*5+2;
+      const angle = (i/16)*Math.PI*2 + Math.random()*0.4;
+      const dist  = 50+Math.random()*100;
+      const color = burstColors[Math.floor(Math.random()*burstColors.length)];
       star.style.cssText = `
-        left: ${e.clientX}px;
-        top:  ${e.clientY}px;
-        width:  ${size}px;
-        height: ${size}px;
-        background: ${color};
-        box-shadow: 0 0 ${size*3}px ${color};
-        --dx: ${Math.cos(angle)*dist}px;
-        --dy: ${Math.sin(angle)*dist}px;
-        animation-duration: ${0.5 + Math.random()*0.4}s;
+        left:${e.clientX}px; top:${e.clientY}px;
+        width:${size}px; height:${size}px;
+        background:${color};
+        box-shadow:0 0 ${size*3}px ${color};
+        --dx:${Math.cos(angle)*dist}px;
+        --dy:${Math.sin(angle)*dist}px;
+        animation-duration:${0.5+Math.random()*0.5}s;
       `;
       burstContainer.appendChild(star);
-      setTimeout(() => star.remove(), 900);
+      setTimeout(() => star.remove(), 1000);
     }
   });
 
   /* ---- Shooting Stars ---- */
   function startShootingStars() {
     function shoot() {
-      const el    = document.createElement('div');
+      const el = document.createElement('div');
       el.className = 'shooting-star';
-      const startX = Math.random() * window.innerWidth;
-      const startY = Math.random() * window.innerHeight * 0.5;
-      const dist   = 200 + Math.random() * 300;
-      const angle  = Math.PI * 0.2 + Math.random() * 0.3;
+      const startX = Math.random()*window.innerWidth;
+      const startY = Math.random()*window.innerHeight*0.4;
+      const dist   = 250+Math.random()*350;
+      const angle  = Math.PI*0.2+Math.random()*0.25;
       const color  = ['#ffffff','#95d5b2','#e8c97e','#9b72cf'][Math.floor(Math.random()*4)];
-      const dur    = 0.8 + Math.random() * 0.6;
-
+      const dur    = 0.7+Math.random()*0.6;
       el.style.cssText = `
-        left: ${startX}px; top: ${startY}px;
-        background: ${color};
-        box-shadow: 0 0 6px ${color}, 0 0 12px ${color};
-        --sx: ${Math.cos(angle)*dist}px;
-        --sy: ${Math.sin(angle)*dist}px;
-        animation-duration: ${dur}s;
+        left:${startX}px; top:${startY}px;
+        background:${color};
+        box-shadow:0 0 8px ${color}, 0 0 16px ${color};
+        --sx:${Math.cos(angle)*dist}px;
+        --sy:${Math.sin(angle)*dist}px;
+        animation-duration:${dur}s;
       `;
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), dur * 1000 + 100);
-      setTimeout(shoot, 2500 + Math.random() * 4000);
+      setTimeout(() => el.remove(), dur*1000+100);
+      setTimeout(shoot, 2000+Math.random()*4000);
     }
     setTimeout(shoot, 3000);
   }
 
-  /* ---- Music ---- */
-  const music   = document.getElementById('bg-music');
-  const btn     = document.getElementById('music-btn');
-  const icon    = document.getElementById('music-icon');
-  let playing   = false;
+  /* ---- Música — autoplay, botón para desactivar ---- */
+  const music  = document.getElementById('bg-music');
+  const btn    = document.getElementById('music-btn');
+  const icon   = document.getElementById('music-icon');
+  let playing  = false;
 
-  music.volume  = 0.25;
+  music.volume = 0.3;
 
-  btn.addEventListener('click', () => {
-    if (playing) {
-      music.pause();
-      icon.textContent = '🔇';
-    } else {
-      music.play().catch(() => {});
-      icon.textContent = '🔊';
-    }
-    playing = !playing;
-  });
-
-  // Try autoplay after interaction
-  document.addEventListener('click', () => {
-    if (!playing) {
+  function startMusic() {
+    document.addEventListener('click', function handler() {
       music.play().then(() => {
         playing = true;
         icon.textContent = '🔊';
-      }).catch(() => {});
+      }).catch(()=>{});
+      document.removeEventListener('click', handler);
+    });
+  }
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (playing) {
+      music.pause();
+      icon.textContent = '🔇';
+      playing = false;
+    } else {
+      music.play().catch(()=>{});
+      icon.textContent = '🔊';
+      playing = true;
     }
-  }, { once: true });
+  });
 
 })();

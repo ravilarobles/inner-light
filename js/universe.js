@@ -1,266 +1,220 @@
 /* ============================================
-   INNER LIGHT — Universe 3D (Three.js)
-   Galaxy + Planets + Rings + Nebula + Stars
+   INNER LIGHT — Universe v2
+   Galaxy + Planets (corners) + Twinkling Stars
 ============================================ */
 (function () {
   const canvas   = document.getElementById('bg-canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0x000000, 0);
 
   const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
-  camera.position.set(0, 12, 55);
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 500);
+  camera.position.set(0, 8, 50);
   camera.lookAt(0, 0, 0);
 
-  /* ---- Fog ---- */
-  scene.fog = new THREE.FogExp2(0x00000f, 0.008);
+  scene.fog = new THREE.FogExp2(0x00000f, 0.007);
 
   /* ---- Lights ---- */
-  scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-
-  const sunLight = new THREE.PointLight(0xfff5cc, 3, 200);
-  sunLight.position.set(0, 30, 0);
-  scene.add(sunLight);
-
-  const greenLight  = new THREE.PointLight(0x52b788, 2, 80);
-  greenLight.position.set(-30, 10, 10);
-  scene.add(greenLight);
-
-  const goldLight   = new THREE.PointLight(0xe8c97e, 2, 80);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+  const greenLight  = new THREE.PointLight(0x52b788, 2.5, 100);
+  const goldLight   = new THREE.PointLight(0xe8c97e, 2,   100);
+  const purpleLight = new THREE.PointLight(0x9b72cf, 2,   80);
+  greenLight.position.set(-30, 15, 10);
   goldLight.position.set(30, -10, 5);
-  scene.add(goldLight);
-
-  const purpleLight = new THREE.PointLight(0x9b72cf, 1.5, 60);
-  purpleLight.position.set(0, -20, -10);
-  scene.add(purpleLight);
+  purpleLight.position.set(0, -20, -5);
+  scene.add(greenLight, goldLight, purpleLight);
 
   /* ============ GALAXY ============ */
-  const galaxyParams = {
-    count:     14000,
-    radius:    80,
-    branches:  5,
-    spin:      1.2,
-    randomness: 0.5,
-    randomPow: 2.5,
-    insideColor:  new THREE.Color(0xe8c97e),
-    outsideColor: new THREE.Color(0x2d6a4f),
-  };
+  const COUNT = 16000, RADIUS = 90, BRANCHES = 5;
+  const gPos = new Float32Array(COUNT * 3);
+  const gCol = new Float32Array(COUNT * 3);
+  const cIn  = new THREE.Color(0xe8c97e);
+  const cOut = new THREE.Color(0x2d6a4f);
 
-  const galaxyGeo  = new THREE.BufferGeometry();
-  const galaxyPos  = new Float32Array(galaxyParams.count * 3);
-  const galaxyCol  = new Float32Array(galaxyParams.count * 3);
-  const colorIn    = galaxyParams.insideColor;
-  const colorOut   = galaxyParams.outsideColor;
-
-  for (let i = 0; i < galaxyParams.count; i++) {
-    const r      = Math.pow(Math.random(), 1.5) * galaxyParams.radius;
-    const branch = (i % galaxyParams.branches) / galaxyParams.branches * Math.PI * 2;
-    const spin   = r * galaxyParams.spin;
-    const rand   = (axis) => Math.pow(Math.random(), galaxyParams.randomPow) * (Math.random() < 0.5 ? 1 : -1) * galaxyParams.randomness * r * 0.1;
-
-    galaxyPos[i*3]   = Math.cos(branch + spin) * r + rand('x');
-    galaxyPos[i*3+1] = rand('y') * 0.3;
-    galaxyPos[i*3+2] = Math.sin(branch + spin) * r + rand('z');
-
-    const mixed = colorIn.clone().lerp(colorOut, r / galaxyParams.radius);
-    galaxyCol[i*3]   = mixed.r;
-    galaxyCol[i*3+1] = mixed.g;
-    galaxyCol[i*3+2] = mixed.b;
+  for (let i = 0; i < COUNT; i++) {
+    const r  = Math.pow(Math.random(), 1.4) * RADIUS;
+    const b  = (i % BRANCHES) / BRANCHES * Math.PI * 2;
+    const sp = r * 1.3;
+    const rx = (Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1)) * r * 0.06;
+    const ry = (Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1)) * r * 0.02;
+    const rz = (Math.pow(Math.random(), 3) * (Math.random()<0.5?1:-1)) * r * 0.06;
+    gPos[i*3]   = Math.cos(b+sp)*r + rx;
+    gPos[i*3+1] = ry;
+    gPos[i*3+2] = Math.sin(b+sp)*r + rz;
+    const m = cIn.clone().lerp(cOut, r/RADIUS);
+    gCol[i*3]=m.r; gCol[i*3+1]=m.g; gCol[i*3+2]=m.b;
   }
 
-  galaxyGeo.setAttribute('position', new THREE.BufferAttribute(galaxyPos, 3));
-  galaxyGeo.setAttribute('color',    new THREE.BufferAttribute(galaxyCol, 3));
-
-  const galaxyMat = new THREE.PointsMaterial({
-    size: 0.22, sizeAttenuation: true,
-    vertexColors: true, transparent: true, opacity: 0.85,
-    depthWrite: false, blending: THREE.AdditiveBlending,
-  });
-
-  const galaxy = new THREE.Points(galaxyGeo, galaxyMat);
+  const galaxyGeo = new THREE.BufferGeometry();
+  galaxyGeo.setAttribute('position', new THREE.BufferAttribute(gPos, 3));
+  galaxyGeo.setAttribute('color',    new THREE.BufferAttribute(gCol, 3));
+  const galaxy = new THREE.Points(galaxyGeo, new THREE.PointsMaterial({
+    size:0.3, vertexColors:true, transparent:true, opacity:0.9,
+    depthWrite:false, blending:THREE.AdditiveBlending, sizeAttenuation:true,
+  }));
   galaxy.rotation.x = Math.PI * 0.15;
-  galaxy.position.y = -15;
+  galaxy.position.y = -20;
   scene.add(galaxy);
 
-  /* ============ EXTRA STAR FIELD ============ */
-  const starCount = 2000;
-  const starGeo   = new THREE.BufferGeometry();
-  const starPos   = new Float32Array(starCount * 3);
-  const starCol   = new Float32Array(starCount * 3);
-  const sPalette  = [
+  /* ============ TWINKLING STARS ============ */
+  const SCOUNT = 2500;
+  const sPos  = new Float32Array(SCOUNT * 3);
+  const sCol  = new Float32Array(SCOUNT * 3);
+  const sSizes= new Float32Array(SCOUNT);
+  const sPal  = [
     new THREE.Color(0xffffff),
     new THREE.Color(0x95d5b2),
     new THREE.Color(0xe8c97e),
     new THREE.Color(0x9b72cf),
     new THREE.Color(0xc8e6ff),
+    new THREE.Color(0xffccaa),
   ];
 
-  for (let i = 0; i < starCount; i++) {
-    starPos[i*3]   = (Math.random() - 0.5) * 300;
-    starPos[i*3+1] = (Math.random() - 0.5) * 200;
-    starPos[i*3+2] = (Math.random() - 0.5) * 200 - 20;
-    const c = sPalette[Math.floor(Math.random() * sPalette.length)];
-    starCol[i*3]   = c.r;
-    starCol[i*3+1] = c.g;
-    starCol[i*3+2] = c.b;
+  for (let i = 0; i < SCOUNT; i++) {
+    sPos[i*3]   = (Math.random()-0.5)*320;
+    sPos[i*3+1] = (Math.random()-0.5)*220;
+    sPos[i*3+2] = (Math.random()-0.5)*180 - 20;
+    const c = sPal[Math.floor(Math.random()*sPal.length)];
+    sCol[i*3]=c.r; sCol[i*3+1]=c.g; sCol[i*3+2]=c.b;
+    sSizes[i] = 0.2 + Math.random() * 0.6;
   }
 
-  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
-  starGeo.setAttribute('color',    new THREE.BufferAttribute(starCol, 3));
+  const starGeo = new THREE.BufferGeometry();
+  starGeo.setAttribute('position', new THREE.BufferAttribute(sPos, 3));
+  starGeo.setAttribute('color',    new THREE.BufferAttribute(sCol, 3));
+  starGeo.setAttribute('size',     new THREE.BufferAttribute(sSizes, 1));
 
   const starMat = new THREE.PointsMaterial({
-    size: 0.15, vertexColors: true,
-    transparent: true, opacity: 0.9,
-    sizeAttenuation: true,
-    blending: THREE.AdditiveBlending, depthWrite: false,
+    size:0.35, vertexColors:true, transparent:true, opacity:1,
+    sizeAttenuation:true, blending:THREE.AdditiveBlending, depthWrite:false,
   });
-
   const stars = new THREE.Points(starGeo, starMat);
   scene.add(stars);
 
-  /* ============ PLANETS ============ */
+  /* ============ PLANETS — corners only ============ */
   const planets = [];
 
   function makePlanet(radius, color, x, y, z, hasRing, ringColor) {
-    const geo  = new THREE.SphereGeometry(radius, 32, 32);
-    const mat  = new THREE.MeshPhongMaterial({
-      color, shininess: 60, transparent: true, opacity: 0.9,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x, y, z);
-
     const group = new THREE.Group();
+    const mesh  = new THREE.Mesh(
+      new THREE.SphereGeometry(radius, 40, 40),
+      new THREE.MeshPhongMaterial({ color, shininess:80, transparent:true, opacity:0.92 })
+    );
     group.add(mesh);
 
-    if (hasRing) {
-      const rGeo = new THREE.TorusGeometry(radius * 1.8, radius * 0.22, 3, 64);
-      const rMat = new THREE.MeshPhongMaterial({
-        color: ringColor || 0xe8c97e,
-        transparent: true, opacity: 0.5,
-        side: THREE.DoubleSide,
-      });
-      const ring = new THREE.Mesh(rGeo, rMat);
-      ring.rotation.x = Math.PI * 0.42;
-      group.add(ring);
+    // Atmosphere
+    group.add(new THREE.Mesh(
+      new THREE.SphereGeometry(radius*1.1, 32, 32),
+      new THREE.MeshPhongMaterial({ color, transparent:true, opacity:0.07, side:THREE.BackSide })
+    ));
 
-      // Wireframe ring
-      const rWire = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({
-        color: ringColor || 0xe8c97e, wireframe:true, transparent:true, opacity:0.15,
-      }));
-      rWire.rotation.x = Math.PI * 0.42;
+    if (hasRing) {
+      const rGeo = new THREE.TorusGeometry(radius*1.9, radius*0.2, 3, 80);
+      const rMat = new THREE.MeshPhongMaterial({ color:ringColor||0xe8c97e, transparent:true, opacity:0.55, side:THREE.DoubleSide });
+      const ring = new THREE.Mesh(rGeo, rMat);
+      ring.rotation.x = Math.PI * 0.38;
+      group.add(ring);
+      const rWire = new THREE.Mesh(rGeo, new THREE.MeshBasicMaterial({ color:ringColor||0xe8c97e, wireframe:true, transparent:true, opacity:0.12 }));
+      rWire.rotation.x = Math.PI * 0.38;
       group.add(rWire);
     }
 
-    // Atmosphere glow
-    const atmGeo = new THREE.SphereGeometry(radius * 1.12, 32, 32);
-    const atmMat = new THREE.MeshPhongMaterial({
-      color, transparent: true, opacity: 0.08,
-      side: THREE.BackSide,
-    });
-    group.add(new THREE.Mesh(atmGeo, atmMat));
-
+    group.position.set(x, y, z);
     scene.add(group);
-    planets.push({ group, mesh, speed: 0.002 + Math.random() * 0.003, offset: Math.random() * Math.PI * 2 });
+    planets.push({ group, mesh, speed:0.002+Math.random()*0.002, offset:Math.random()*Math.PI*2 });
     return group;
   }
 
-  // Saturn-like — gold with rings
-  makePlanet(4.5, 0xc9a84c, -28, 8, -20, true, 0xe8c97e);
+  // Only ONE ringed planet — top right corner, far from center
+  makePlanet(5, 0xc9a84c, 32, 18, -28, true, 0xe8c97e);
 
-  // Purple planet with rings
-  makePlanet(3.2, 0x6b3fa0, 30, -5, -25, true, 0x9b72cf);
+  // Small planets in other corners — no rings
+  makePlanet(2.2, 0x6b3fa0, -34, 16, -22, false);   // top left
+  makePlanet(1.8, 0x2d6a4f, -30, -18, -18, false);  // bottom left
+  makePlanet(2.0, 0x8ecae6, 30, -16, -20, false);   // bottom right
 
-  // Green planet — no ring
-  makePlanet(2.8, 0x2d6a4f, -20, -12, -10, false);
-
-  // Small white/blue
-  makePlanet(1.8, 0x8ecae6, 22, 14, -15, false);
-
-  // Tiny gold
-  makePlanet(1.2, 0xe8c97e, -8, 16, -8, false);
-
-  // Medium purple no ring
-  makePlanet(2.2, 0x9b72cf, 18, -16, -12, false);
-
-  /* ============ NEBULA CLOUDS ============ */
-  function makeNebula(count, color, cx, cy, cz, spread) {
+  /* ============ NEBULA ============ */
+  function makeNebula(n, color, cx, cy, cz, spread) {
     const geo = new THREE.BufferGeometry();
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i*3]   = cx + (Math.random()-0.5)*spread;
-      pos[i*3+1] = cy + (Math.random()-0.5)*spread*0.5;
-      pos[i*3+2] = cz + (Math.random()-0.5)*spread;
+    const pos = new Float32Array(n*3);
+    for (let i=0;i<n;i++) {
+      pos[i*3]   = cx+(Math.random()-0.5)*spread;
+      pos[i*3+1] = cy+(Math.random()-0.5)*spread*0.4;
+      pos[i*3+2] = cz+(Math.random()-0.5)*spread;
     }
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-    const mat = new THREE.PointsMaterial({
-      color, size: 0.8, transparent:true, opacity:0.06,
-      blending: THREE.AdditiveBlending, depthWrite:false,
-    });
-    scene.add(new THREE.Points(geo, mat));
+    geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+    scene.add(new THREE.Points(geo, new THREE.PointsMaterial({
+      color, size:1.0, transparent:true, opacity:0.05,
+      blending:THREE.AdditiveBlending, depthWrite:false,
+    })));
   }
+  makeNebula(900, 0x52b788, -40, 5, -35, 35);
+  makeNebula(900, 0x9b72cf,  40,-5, -40, 32);
+  makeNebula(700, 0xe8c97e,   0,22, -45, 28);
 
-  makeNebula(800, 0x52b788, -35, 5, -30, 30);
-  makeNebula(800, 0x9b72cf, 35, -5, -35, 28);
-  makeNebula(600, 0xe8c97e, 0, 20, -40, 25);
-  makeNebula(500, 0x2d6a4f, -10, -18, -20, 20);
-
-  /* ============ MOUSE PARALLAX ============ */
-  let mouseX = 0, mouseY = 0, targetX = 0, targetY = 0;
-
+  /* ============ MOUSE ============ */
+  let mouseX=0, mouseY=0, targetX=0, targetY=0;
   document.addEventListener('mousemove', (e) => {
-    mouseX = (e.clientX / window.innerWidth  - 0.5) * 2;
-    mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    mouseX = (e.clientX/window.innerWidth  - 0.5)*2;
+    mouseY = (e.clientY/window.innerHeight - 0.5)*2;
   });
 
   /* ============ RESIZE ============ */
   window.addEventListener('resize', () => {
-    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.aspect = window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  /* ============ ANIMATION LOOP ============ */
-  let time = 0;
+  /* ============ TWINKLE ============ */
+  let twinkleTime = 0;
 
+  /* ============ LOOP ============ */
+  let time = 0;
   function animate() {
     requestAnimationFrame(animate);
     time += 0.004;
+    twinkleTime += 0.02;
 
-    // Smooth mouse
-    targetX += (mouseX - targetX) * 0.025;
-    targetY += (mouseY - targetY) * 0.025;
+    targetX += (mouseX - targetX)*0.025;
+    targetY += (mouseY - targetY)*0.025;
 
-    // Galaxy rotation
-    galaxy.rotation.y = time * 0.06;
+    // Galaxy
+    galaxy.rotation.y = time * 0.05;
 
-    // Stars slow drift
-    stars.rotation.y = time * 0.012;
-    stars.rotation.x = time * 0.005;
+    // Stars twinkle — vary opacity
+    starMat.opacity = 0.75 + Math.sin(twinkleTime * 0.8) * 0.25;
+    stars.rotation.y = time * 0.008;
 
-    // Animate lights
-    greenLight.position.x  = Math.sin(time * 0.5) * 35;
-    greenLight.position.y  = Math.cos(time * 0.3) * 20;
-    goldLight.position.x   = Math.cos(time * 0.4) * 30;
-    goldLight.position.y   = Math.sin(time * 0.6) * 15;
-    purpleLight.position.x = Math.sin(time * 0.3 + 1) * 25;
-    purpleLight.position.z = Math.cos(time * 0.2) * 20;
+    // Individual star size twinkle via size attribute
+    const sizes = starGeo.attributes.size.array;
+    for (let i = 0; i < SCOUNT; i++) {
+      sizes[i] = (0.2 + Math.random() * 0.01) + Math.abs(Math.sin(twinkleTime * 0.5 + i * 0.3)) * 0.5;
+    }
+    starGeo.attributes.size.needsUpdate = true;
 
-    // Animate planets
-    planets.forEach((p, i) => {
+    // Lights animate
+    greenLight.position.x  = Math.sin(time*0.5)*35;
+    greenLight.position.y  = Math.cos(time*0.3)*20;
+    goldLight.position.x   = Math.cos(time*0.4)*30;
+    goldLight.position.y   = Math.sin(time*0.6)*15;
+    purpleLight.position.x = Math.sin(time*0.3+1)*25;
+
+    // Planets
+    planets.forEach(p => {
       p.group.rotation.y += p.speed;
-      p.mesh.rotation.y  += p.speed * 0.5;
-      p.group.position.y += Math.sin(time * 0.5 + p.offset) * 0.01;
+      p.mesh.rotation.y  += p.speed*0.5;
+      p.group.position.y += Math.sin(time*0.4 + p.offset)*0.008;
     });
 
     // Camera parallax
-    camera.position.x += (targetX * 6 - camera.position.x) * 0.04;
-    camera.position.y += (-targetY * 4 - camera.position.y + 12) * 0.04;
-    camera.lookAt(0, 0, 0);
+    camera.position.x += (targetX*5 - camera.position.x)*0.04;
+    camera.position.y += (-targetY*3 - camera.position.y + 8)*0.04;
+    camera.lookAt(0,0,0);
 
     renderer.render(scene, camera);
   }
-
   animate();
 })();

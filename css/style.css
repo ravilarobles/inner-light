@@ -1,5 +1,5 @@
 /* ============================================
-   INNER LIGHT — Universe Edition
+   INNER LIGHT — Universe Edition v3
 ============================================ */
 :root {
   --green:       #52b788;
@@ -24,15 +24,11 @@ body {
   color: var(--white);
   min-height: 100vh;
   overflow-x: hidden;
-  position: relative;
 }
 
-/* ---- Canvas ---- */
 #bg-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
+  position: fixed; inset: 0;
+  z-index: 0; pointer-events: none;
 }
 
 /* ---- Loader ---- */
@@ -42,14 +38,11 @@ body {
   display: flex; align-items: center; justify-content: center;
   transition: opacity 1s ease, visibility 1s ease;
 }
-#loader.hidden { opacity:0; visibility:hidden; }
-
+#loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
 .loader-inner {
   display: flex; flex-direction: column;
-  align-items: center; gap: 1.5rem;
-  position: relative;
+  align-items: center; gap: 1.5rem; position: relative;
 }
-
 .loader-ring {
   width: 64px; height: 64px;
   border: 1px solid rgba(82,183,136,0.2);
@@ -58,7 +51,6 @@ body {
   animation: spin 1.2s linear infinite;
   position: absolute;
 }
-
 .loader-ring2 {
   width: 48px; height: 48px;
   border: 1px solid rgba(155,114,207,0.2);
@@ -67,7 +59,6 @@ body {
   animation: spin 0.8s linear infinite reverse;
   position: absolute;
 }
-
 .loader-text {
   font-family: var(--font-display);
   font-size: 1.1rem; font-weight:300;
@@ -76,42 +67,37 @@ body {
   margin-top: 80px;
   animation: pulse 1.5s ease infinite;
 }
-
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin  { to { transform: rotate(360deg); } }
 @keyframes pulse { 0%,100%{opacity:0.3} 50%{opacity:1} }
 
 /* ---- Music Button ---- */
 #music-btn {
   position: fixed; bottom: 2rem; right: 2rem;
   z-index: 200;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(82,183,136,0.3);
-  background: rgba(0,0,15,0.6);
+  width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(82,183,136,0.4);
+  background: rgba(0,0,15,0.7);
   backdrop-filter: blur(10px);
-  cursor: pointer;
-  font-size: 1.1rem;
+  cursor: pointer; font-size: 1.2rem;
   display: flex; align-items: center; justify-content: center;
-  transition: border-color 0.3s, transform 0.3s;
-  opacity: 0;
-  animation: fadeIn 1s 3s ease forwards;
+  transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  opacity: 0; animation: fadeIn 1s 4s ease forwards;
 }
 #music-btn:hover {
   border-color: var(--green);
   transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(82,183,136,0.3);
 }
 
 /* ---- Nav ---- */
 #navbar {
-  position: fixed; top:0; left:0; right:0;
-  z-index: 100;
+  position: fixed; top:0; left:0; right:0; z-index: 100;
   padding: 1.8rem 3rem;
   background: linear-gradient(to bottom, rgba(0,0,15,0.8), transparent);
   opacity: 0; transform: translateY(-20px);
   transition: opacity 0.8s ease, transform 0.8s ease;
 }
 #navbar.visible { opacity:1; transform:translateY(0); }
-
 .nav-logo {
   font-family: var(--font-display);
   font-size: 1.3rem; font-weight:300;
@@ -130,10 +116,11 @@ body {
 .hero-content {
   position: relative; z-index:1;
   text-align: center;
-  display: flex; flex-direction: column;
-  align-items: center;
-  transition: transform 0.08s ease-out;
+  display: flex; flex-direction: column; align-items: center;
+  transition: transform 0.1s ease-out;
   will-change: transform;
+  transform-style: preserve-3d;
+  perspective: 1400px;
 }
 
 /* ---- Deco Lines ---- */
@@ -143,78 +130,107 @@ body {
   transform: scaleY(0); transform-origin: top;
 }
 .top-line {
-  height: 80px; margin-bottom: 2.5rem;
-  animation: lineReveal 1.2s 2.2s cubic-bezier(0.25,0.1,0.25,1) forwards;
+  height: 80px; margin-bottom: 2rem;
+  animation: lineReveal 1.2s 2.5s cubic-bezier(0.25,0.1,0.25,1) forwards;
 }
 .bottom-line {
-  height: 55px; margin-top: 2.5rem;
-  animation: lineReveal 1s 2.8s cubic-bezier(0.25,0.1,0.25,1) forwards;
+  height: 40px; margin-top: 0.8rem;
+  animation: lineReveal 1s 3.8s cubic-bezier(0.25,0.1,0.25,1) forwards;
 }
 @keyframes lineReveal { to { transform: scaleY(1); } }
 
 /* ---- Message ---- */
-.message-wrap { display:flex; flex-direction:column; gap:0.1em; }
+.message-wrap { display:flex; flex-direction:column; gap:0.05em; }
 
 .message-line {
   font-family: var(--font-display);
-  font-size: clamp(2.2rem, 7vw, 5.2rem);
-  font-weight: 300; line-height: 1.25;
+  font-size: clamp(2.8rem, 9vw, 7rem);
+  font-weight: 700;
+  line-height: 1.15;
   display: flex; align-items: center;
-  justify-content: center; gap: 0.3em; flex-wrap: wrap;
+  justify-content: center; gap: 0.25em; flex-wrap: wrap;
+  text-shadow:
+    1px 1px 0 rgba(0,0,0,0.8),
+    2px 2px 0 rgba(0,0,0,0.6),
+    3px 3px 0 rgba(0,0,0,0.4),
+    4px 4px 8px rgba(0,0,0,0.3);
 }
 
-/* 3D parallax layers */
-.layer-1 { --tz: 0px;  --speed: 1; }
-.layer-2 { --tz: 20px; --speed: 1.4; }
-.layer-3 { --tz: 40px; --speed: 1.8; }
-
+/* ---- Words ---- */
 .word {
   display: inline-block;
   opacity: 0;
-  transform: translateY(40px) translateZ(var(--tz, 0));
-  transition: opacity 0.9s ease, transform 0.9s ease;
-  will-change: transform;
+  will-change: transform, opacity;
 }
-.word.visible { opacity:1; transform: translateY(0) translateZ(var(--tz, 0)); }
+.word[data-dir="left"]    { transform: translateX(-80px) translateZ(-30px); }
+.word[data-dir="top"]     { transform: translateY(-60px) translateZ(-20px); }
+.word[data-dir="bottom"]  { transform: translateY(60px)  translateZ(-20px); }
+.word[data-dir="right"]   { transform: translateX(80px)  translateZ(-30px); }
+.word[data-dir="explode"] { transform: scale(0.2) translateZ(-50px); filter: blur(8px); }
+
+.word.visible {
+  opacity: 1;
+  transform: translateX(0) translateY(0) translateZ(0) scale(1);
+  filter: blur(0);
+  transition:
+    opacity 1s cubic-bezier(0.25,0.1,0.25,1),
+    transform 1s cubic-bezier(0.25,0.1,0.25,1),
+    filter 0.8s ease;
+}
+.word.visible.shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%,100% { filter: brightness(1); }
+  50%      { filter: brightness(1.3) drop-shadow(0 0 10px currentColor); }
+}
 
 .gold-word {
   font-style: italic; color: var(--gold);
-  text-shadow: 0 0 40px rgba(232,201,126,0.4), 0 0 80px rgba(232,201,126,0.15);
+  text-shadow:
+    1px 1px 0 rgba(0,0,0,0.8),
+    2px 2px 0 rgba(0,0,0,0.5),
+    3px 3px 8px rgba(0,0,0,0.3),
+    0 0 40px rgba(232,201,126,0.5);
 }
 .gradient-word {
   font-style: italic;
   background: linear-gradient(135deg, var(--gold) 0%, var(--purple) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  filter: drop-shadow(0 0 20px rgba(155,114,207,0.4));
+  filter: drop-shadow(0 0 20px rgba(155,114,207,0.5)) drop-shadow(2px 3px 0 rgba(0,0,0,0.5));
 }
 .green-word {
   color: var(--green-pale);
-  text-shadow: 0 0 30px rgba(82,183,136,0.4), 0 0 60px rgba(82,183,136,0.15);
+  text-shadow:
+    1px 1px 0 rgba(0,0,0,0.8),
+    2px 2px 0 rgba(0,0,0,0.5),
+    3px 3px 8px rgba(0,0,0,0.3),
+    0 0 40px rgba(82,183,136,0.5);
 }
 
 .dot-deco {
-  display: inline-block; width:5px; height:5px;
-  border-radius: 50%; background: var(--gold);
-  vertical-align: middle;
-  opacity:0; animation: dotAppear 0.5s 1.8s ease forwards;
-  box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+  display: inline-block; width:6px; height:6px;
+  border-radius: 50%; background: var(--gold); vertical-align: middle;
+  opacity:0; animation: dotAppear 0.5s 2.2s ease forwards;
+  box-shadow: 0 0 12px var(--gold), 0 0 24px var(--gold);
 }
 @keyframes dotAppear { to { opacity:1; } }
 
+/* ---- Sub tag & Coming Soon — juntos, verdes, grandes ---- */
 .sub-tag {
-  margin-top: 2rem;
-  font-size: 0.68rem; letter-spacing: 0.35em; text-transform: uppercase;
-  color: rgba(240,237,230,0.2);
-  opacity:0; animation: fadeIn 1s 3.2s ease forwards;
+  margin-top: 0.6rem;
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--green-pale);
+  opacity:0;
+  animation: fadeIn 1s 4.2s ease forwards;
 }
 
 /* ---- Click Burst ---- */
 #burst-container { position:fixed; inset:0; z-index:50; pointer-events:none; }
-
 .burst-star {
-  position: absolute;
-  pointer-events: none;
-  border-radius: 50%;
+  position: absolute; pointer-events: none; border-radius: 50%;
   animation: burstAnim 0.8s ease-out forwards;
 }
 @keyframes burstAnim {
@@ -225,39 +241,48 @@ body {
 /* ---- Footer ---- */
 #footer {
   position: relative; z-index:10;
-  padding: 1.5rem 3rem;
-  border-top: 1px solid rgba(255,255,255,0.04);
+  padding: 0.8rem 3rem 1.8rem;
   display: flex; justify-content: center;
 }
+
+.footer-texts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
 .coming-soon {
-  font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase;
-  color: rgba(240,237,230,0.18);
-  opacity:0; animation: fadeIn 1s 3.5s ease forwards;
+  font-size: 1rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--green-pale);
+  opacity:0;
+  animation: fadeIn 1s 4.5s ease forwards;
+}
+
+/* ---- Shooting Star ---- */
+.shooting-star {
+  position: fixed; width:2px; height:2px;
+  border-radius: 50%; pointer-events:none; z-index:5;
+  animation: shoot linear forwards;
+}
+@keyframes shoot {
+  0%   { opacity:0; transform:translate(0,0) scaleX(1); }
+  5%   { opacity:1; }
+  95%  { opacity:1; }
+  100% { opacity:0; transform:translate(var(--sx),var(--sy)) scaleX(10); }
 }
 
 @keyframes fadeIn { to { opacity:1; } }
 
-/* ---- Shooting Star ---- */
-.shooting-star {
-  position: fixed;
-  width: 2px; height: 2px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 5;
-  animation: shoot linear forwards;
-}
-@keyframes shoot {
-  0%   { opacity:0; transform: translate(0,0) scaleX(1); }
-  5%   { opacity:1; }
-  95%  { opacity:1; }
-  100% { opacity:0; transform: translate(var(--sx), var(--sy)) scaleX(8); }
-}
-
 /* ---- Responsive ---- */
 @media (max-width:600px) {
-  #navbar { padding: 1.2rem 1.5rem; }
-  .message-line { font-size: clamp(1.8rem, 9vw, 3rem); }
+  #navbar { padding:1.2rem 1.5rem; }
+  .message-line { font-size: clamp(2rem, 10vw, 3.5rem); }
   #music-btn { bottom:1rem; right:1rem; }
+  .sub-tag { font-size: 0.75rem; }
+  .coming-soon { font-size: 0.75rem; }
 }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
