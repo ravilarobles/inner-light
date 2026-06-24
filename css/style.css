@@ -295,10 +295,18 @@ body {
 
 @media (max-width:600px) {
   #navbar { padding:1.2rem 1.5rem; }
-  .message-line { font-size: clamp(2rem, 10vw, 3.5rem); }
-  #music-btn { bottom:1rem; right:1rem; }
-  .sub-tag { font-size: 0.75rem; }
-  .coming-soon { font-size: 0.75rem; }
+  .nav-logo { font-size: 1rem; }
+  .message-line { font-size: clamp(1.8rem, 9vw, 3rem); }
+  #music-btn {
+    top: 1rem; right: 1.2rem;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+  }
+  .footer-line1 { font-size: 0.6rem; letter-spacing: 0.3em; }
+  .footer-line2 { font-size: 0.6rem; letter-spacing: 0.2em; }
+  .footer-line3 { font-size: 1.2rem; letter-spacing: 0.2em; }
+  #footer { padding: 0.5rem 1rem 1.5rem; }
 }
 @media (prefers-reduced-motion:reduce) {
   *, *::before, *::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
